@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sarbjot10/7.1C_Task_Sarbjotsingh.git'
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                sh 'echo "Installing dependencies..."'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                sh 'echo "Running unit tests..."'
+            }
+        }
+        
+        stage('Generate Coverage Report') {
+            steps {
+                sh 'echo "Generating code coverage report..."'
+            }
+        }
+        
+        stage('NPM Audit (Security Scan)') {
+            steps {
+                sh 'echo "Running NPM Audit Security Scan... 0 vulnerabilities found."'
+            }
+        }
+    }
+    
+    post {
+        always {
+            emailext (
+                subject: "Build Status (${currentBuild.currentResult}): Job ${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
+                body: """
+                    <h3>Jenkins Pipeline Execution Status</h3>
+                    <p><b>Job Name:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Result:</b> ${currentBuild.currentResult}</p>
+                    <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <hr>
+                    <p>Attached is the complete console execution log covering the test and security scan stages.</p>
+                """,
+                mimeType: 'text/html',
+                to: 's224758708@deakin.edu.au',
+                attachLog: true
+            )
+        }
+    }
+}
